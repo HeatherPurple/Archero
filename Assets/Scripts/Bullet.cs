@@ -5,18 +5,38 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    void Start()
-    {
-        
-    }
+    private Rigidbody _rigidbody;
+
+    [SerializeField] private float speed;
+    [SerializeField] private BulletTarget ignoreTarget;
     
-    void Update()
+    private void Awake()
     {
-        
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void Init(Vector3 velocity)
     {
-        
+        _rigidbody.velocity = velocity * speed;
+        //rotate
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag(ignoreTarget.ToString())) return;
+
+
+        Destroy(gameObject);
+
+
+            // collision.gameObject.TryGetComponent(out Player component) ? component.name.Length;
+
+    }
+    
+
+    private enum BulletTarget
+    {
+        Player,
+        Enemy
     }
 }

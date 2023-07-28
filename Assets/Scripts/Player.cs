@@ -3,51 +3,66 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private List<Bullet> ammo = new List<Bullet>();
+    [SerializeField] private float movementSpeed;
+    [SerializeField] private float shootRate;
+    [SerializeField] private float alpha;
+    [SerializeField] private GameObject bulletPrefab;
 
-    private Rigidbody rigidbody;
+    private Rigidbody _rigidbody;
     private InputMaster _inputMaster;
-    private Vector2 movement;
     
+    private Vector2 _movement;
+    private float _nextShootTime;
+    
+    private bool _isMoving;
+
+
+    [SerializeField] private GameObject currentTarget;
+
 
     private void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        _rigidbody = GetComponent<Rigidbody>();
         _inputMaster = new InputMaster();
         _inputMaster.Player.Enable();
-        
-        _inputMaster.Player.Shoot.performed += Shoot;
     }
-
-    private void Shoot(InputAction.CallbackContext context)
-    {
-        Debug.Log("Space was pressed!");
-        
-    }
-
 
     private void Update()
     {
-        movement = _inputMaster.Player.Move.ReadValue<Vector2>();
+        _movement = _inputMaster.Player.Move.ReadValue<Vector2>();
+        _isMoving = _rigidbody.velocity.magnitude > alpha;
+        _nextShootTime -= Time.deltaTime;
+        
+        AutoShoot();
     }
 
     private void FixedUpdate()
     {
-        Move();   
+        Move();
     }
 
     private void Move()
     {
-        var fixedMovement = new Vector3(movement.x, 0f, movement.y);
-        rigidbody.velocity = fixedMovement * (speed * Time.deltaTime);
+        var fixedMovement = new Vector3(_movement.x, 0f, _movement.y);
+        _rigidbody.velocity = fixedMovement * (movementSpeed * Time.deltaTime);
     }
-
-    private void OnDestroy()
+    
+    private void AutoShoot()
     {
-        _inputMaster.Player.Shoot.performed -= Shoot;
+        if (_nextShootTime > 0) return;
+        if (_isMoving) return;
+        if (currentTarget is null) return;
+
+        _nextShootTime = shootRate;
+        
+        var myTransform = transform;
+        var targetDirection = (currentTarget.transform.position - myTransform.position).normalized;
+        var bullet = Instantiate(bulletPrefab, myTransform);
+        bullet.GetComponent<Bullet>().Init(targetDirection);
     }
+    
 }
