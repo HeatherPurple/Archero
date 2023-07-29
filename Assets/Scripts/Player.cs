@@ -1,14 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
-public class Player : MonoBehaviour
+public class Player : Creature
 {
-    [SerializeField] private float movementSpeed;
-    [SerializeField] private float shootRate;
     [SerializeField] private float alpha;
     [SerializeField] private GameObject bulletPrefab;
 
@@ -20,8 +20,8 @@ public class Player : MonoBehaviour
     
     private bool _isMoving;
 
-
-    [SerializeField] private GameObject currentTarget;
+    //[SerializeField] private GameObject currentTarget;
+    [SerializeField] private List<GameObject> enemyList;
 
 
     private void Awake()
@@ -29,6 +29,8 @@ public class Player : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _inputMaster = new InputMaster();
         _inputMaster.Player.Enable();
+
+        enemyList = transform.GetChild(0).GetComponent<EnemyDetection>().EnemyList;
     }
 
     private void Update()
@@ -48,21 +50,43 @@ public class Player : MonoBehaviour
     private void Move()
     {
         var fixedMovement = new Vector3(_movement.x, 0f, _movement.y);
-        _rigidbody.velocity = fixedMovement * (movementSpeed * Time.deltaTime);
+        _rigidbody.velocity = fixedMovement * (MovementSpeed * Time.deltaTime);
     }
     
     private void AutoShoot()
     {
         if (_nextShootTime > 0) return;
         if (_isMoving) return;
-        if (currentTarget is null) return;
-
-        _nextShootTime = shootRate;
         
+        var currentTarget = GetNearestEnemy();
+        if (currentTarget == null) return;
+        
+        _nextShootTime = ShootRate;
         var myTransform = transform;
         var targetDirection = (currentTarget.transform.position - myTransform.position).normalized;
         var bullet = Instantiate(bulletPrefab, myTransform);
-        bullet.GetComponent<Bullet>().Init(targetDirection);
+        bullet.GetComponent<Bullet>().Init(targetDirection, Damage);
     }
-    
+
+    [CanBeNull]
+    private GameObject GetNearestEnemy()
+    {
+        GameObject target = null;
+        var distanceToNearestEnemy = float.MaxValue;
+
+        foreach (var enemy in enemyList)
+        {
+            if (enemy == null) continue;
+            //check if it's possible to attack enemy
+            
+            var distance = (enemy.transform.position - transform.position).magnitude;
+            if (distance >= distanceToNearestEnemy) continue;
+            distanceToNearestEnemy = distance;
+            target = enemy;
+        }
+
+        return target;
+    }
+
+
 }
