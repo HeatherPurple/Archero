@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class Enemy : Creature
 {
@@ -9,55 +11,104 @@ public class Enemy : Creature
     [SerializeField] private float sleepTime;
     [SerializeField] private bool isFlying;
 
-    [SerializeField] private EnemyState currentState = EnemyState.Sleeping;
+    [SerializeField] private float attackDistance;
+    [SerializeField] private float attackMovementSpeedMultiplier;
+    [SerializeField] private float attackTime;
+    [SerializeField] private float attackRate;
+
+    [SerializeField] private EnemyState _currentState;
+
+    private Rigidbody _rigidbody;
+    private Transform _target;
+    private float _nextMoveTime;
+    private float _nextAttackTime;
+    private float _endAttackTime;
+    private bool _isAttacking;
 
     private void Awake()
     {
-        currentState = EnemyState.Sleeping;
+        _currentState = EnemyState.Chasing;
+        _rigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void Start()
+    {
+        _target = Player.Instance.transform;
     }
 
     private void Update()
     {
-        switch (currentState)
+        
+    }
+
+    private void FixedUpdate()
+    {
+        switch (_currentState)
         {
-            case EnemyState.Moving:
-                Move();
+            case EnemyState.Sleeping:
+                Sleeping();
+                break;
+            case EnemyState.Chasing:
+                Chasing();
                 break;
             case EnemyState.Attacking:
-                Attack();
-                break;
-            case EnemyState.Sleeping:
-                Sleep();
+                Attacking();
                 break;
         }
     }
 
-    private void Move()
+    private void Sleeping()
     {
-        
-    }
-    
-    private void Attack()
-    {
-        
-    }
-    
-    private void Sleep()
-    {
-        
+        _rigidbody.velocity = Vector3.zero;
+        _nextMoveTime -= Time.deltaTime;
+        if (_nextMoveTime > 0) return;
+
+        _nextMoveTime = sleepTime;
+        _currentState = EnemyState.Chasing;
     }
 
-    protected override void Die()
+    private void Chasing()
     {
-        base.Die();
+        var targetDirection = (_target.position - transform.position).normalized;
+        _rigidbody.velocity = targetDirection * (MovementSpeed * Time.deltaTime);
+
+        if (Time.time > _nextAttackTime &&
+            Vector3.Distance(_target.position, transform.position) <= attackDistance)
+            _currentState = EnemyState.Attacking;
     }
 
-    enum EnemyState
+
+    private void Attacking()
     {
-        Moving,
-        Attacking,
-        Sleeping
+        if (!_isAttacking)
+        {
+            _endAttackTime = attackTime;
+            var targetDirection = (_target.position - transform.position).normalized;
+            _rigidbody.velocity = targetDirection * (MovementSpeed * attackMovementSpeedMultiplier * Time.deltaTime);
+            _isAttacking = true;
+        }
+
+        _endAttackTime -= Time.deltaTime;
+        if (_endAttackTime > 0) return;
+
+        _nextAttackTime = Time.time + attackRate;
+        _isAttacking = false;
+        _endAttackTime = attackTime;
+        _currentState = EnemyState.Sleeping;
     }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent(out Player component)) component.TakeDamage(Damage);
+    }
+
+
+    private enum EnemyState
+    {
+        Sleeping,
+        Chasing,
+        Attacking
+    }
+
 }
-
-

@@ -9,6 +9,8 @@ using UnityEngine.Serialization;
 
 public class Player : Creature
 {
+    public static Player Instance;
+    
     [SerializeField] private float alpha;
     [SerializeField] private GameObject bulletPrefab;
 
@@ -26,6 +28,7 @@ public class Player : Creature
 
     private void Awake()
     {
+        Instance = this;
         _rigidbody = GetComponent<Rigidbody>();
         _inputMaster = new InputMaster();
         _inputMaster.Player.Enable();

@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    private Rigidbody _rigidbody;
-    private int damage;
-
     [SerializeField] private float speed;
     [SerializeField] private BulletTarget ignoreTarget;
+    
+    private Rigidbody _rigidbody;
+    private int _damage;
     
     
     private void Awake()
@@ -20,7 +20,7 @@ public class Bullet : MonoBehaviour
     public void Init(Vector3 velocity, int damage)
     {
         _rigidbody.velocity = velocity * speed;
-        this.damage = damage;
+        _damage = damage;
         //rotate
     }
 
@@ -28,14 +28,16 @@ public class Bullet : MonoBehaviour
     {
         if (other.gameObject.CompareTag(ignoreTarget.ToString())) return;
         
-        if (other.gameObject.TryGetComponent(out Creature component)) component.TakeDamage(damage);
+        if (other.gameObject.TryGetComponent(out Creature component)) component.TakeDamage(_damage);
 
         Destroy(gameObject);
     }
+
+    private enum BulletTarget
+    {
+        Player,
+        Enemy
+    }
 }
 
-public enum BulletTarget
-{
-    Player,
-    Enemy
-}
+

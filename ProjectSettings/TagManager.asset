@@ -13,12 +13,12 @@ TagManager:
   - Water
   - UI
   - 
-  - 
-  - IgnoreBullets
+  - Player
+  - Shotable Through
   - Bullet
-  - 
-  - 
-  - 
+  - Flying Enemy
+  - Enemy
+  - Field Barrier
   - 
   - 
   - 

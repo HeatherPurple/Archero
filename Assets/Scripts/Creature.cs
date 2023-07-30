@@ -9,6 +9,8 @@ public abstract class Creature : MonoBehaviour
     [SerializeField] protected int ShootRate;
     [SerializeField] protected int Damage;
 
+    [SerializeField] private float takingDamageRate;
+
     public virtual void TakeDamage(int damage)
     {
         Health -= damage;
@@ -17,7 +19,6 @@ public abstract class Creature : MonoBehaviour
     
     protected virtual void Die()
     {
-        Debug.Log($"{gameObject.name} died!");
         Destroy(gameObject);
     }
 }
