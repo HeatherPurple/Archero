@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 public class Enemy : Creature
 {
@@ -19,11 +20,16 @@ public class Enemy : Creature
     [SerializeField] private EnemyState _currentState;
 
     private Rigidbody _rigidbody;
-    private Transform _target;
+    private Transform _player;
     private float _nextMoveTime;
     private float _nextAttackTime;
     private float _endAttackTime;
     private bool _isAttacking;
+
+
+    public static UnityEvent enemySpawn = new UnityEvent();
+    public static UnityEvent enemyDeath = new UnityEvent();
+    
 
     private void Awake()
     {
@@ -33,7 +39,8 @@ public class Enemy : Creature
 
     private void Start()
     {
-        _target = Player.Instance.transform;
+        _player = Player.Instance.transform;
+        enemySpawn.Invoke();
     }
 
     private void Update()
@@ -69,11 +76,11 @@ public class Enemy : Creature
 
     private void Chasing()
     {
-        var targetDirection = (_target.position - transform.position).normalized;
+        var targetDirection = (_player.position - transform.position).normalized;
         _rigidbody.velocity = targetDirection * (MovementSpeed * Time.deltaTime);
 
         if (Time.time > _nextAttackTime &&
-            Vector3.Distance(_target.position, transform.position) <= attackDistance)
+            Vector3.Distance(_player.position, transform.position) <= attackDistance)
             _currentState = EnemyState.Attacking;
     }
 
@@ -83,7 +90,7 @@ public class Enemy : Creature
         if (!_isAttacking)
         {
             _endAttackTime = attackTime;
-            var targetDirection = (_target.position - transform.position).normalized;
+            var targetDirection = (_player.position - transform.position).normalized;
             _rigidbody.velocity = targetDirection * (MovementSpeed * attackMovementSpeedMultiplier * Time.deltaTime);
             _isAttacking = true;
         }
@@ -101,6 +108,12 @@ public class Enemy : Creature
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.TryGetComponent(out Player component)) component.TakeDamage(Damage);
+    }
+
+    protected override void Die()
+    {
+        enemyDeath.Invoke();
+        base.Die();
     }
 
 

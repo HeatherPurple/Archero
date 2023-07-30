@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 public class Player : Creature
@@ -21,9 +19,10 @@ public class Player : Creature
     private float _nextShootTime;
     
     private bool _isMoving;
-
-    //[SerializeField] private GameObject currentTarget;
+    
     [SerializeField] private List<GameObject> enemyList;
+
+    [SerializeField] private int coins;
 
 
     private void Awake()
@@ -34,6 +33,8 @@ public class Player : Creature
         _inputMaster.Player.Enable();
 
         enemyList = transform.GetChild(0).GetComponent<EnemyDetection>().EnemyList;
+        
+        Enemy.enemyDeath.AddListener(AddCoin);
     }
 
     private void Update()
@@ -48,6 +49,11 @@ public class Player : Creature
     private void FixedUpdate()
     {
         Move();
+    }
+
+    private void AddCoin()
+    {
+        coins++;
     }
 
     private void Move()
@@ -80,8 +86,7 @@ public class Player : Creature
         foreach (var enemy in enemyList)
         {
             if (enemy == null) continue;
-            //check if it's possible to attack enemy
-            
+
             var distance = (enemy.transform.position - transform.position).magnitude;
             if (distance >= distanceToNearestEnemy) continue;
             distanceToNearestEnemy = distance;
@@ -91,5 +96,8 @@ public class Player : Creature
         return target;
     }
 
-
+    private void OnDestroy()
+    {
+        Enemy.enemyDeath.RemoveListener(AddCoin);
+    }
 }

@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -17,9 +14,9 @@ public class Bullet : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    public void Init(Vector3 velocity, int damage)
+    public void Init(Vector3 direction, int damage)
     {
-        _rigidbody.velocity = velocity * speed;
+        _rigidbody.velocity = direction * speed;
         _damage = damage;
         //rotate
     }
@@ -29,7 +26,7 @@ public class Bullet : MonoBehaviour
         if (other.gameObject.CompareTag(ignoreTarget.ToString())) return;
         
         if (other.gameObject.TryGetComponent(out Creature component)) component.TakeDamage(_damage);
-
+        
         Destroy(gameObject);
     }
 
