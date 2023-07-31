@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -11,20 +12,20 @@ TagManager:
   - 
   - Water
   - UI
+  - Player
+  - Enemy
+  - Flying Enemy
+  - PlayerBullet
+  - EnemyBullet
+  - Field Barrier
+  - Shotable Through Obstacle
+  - Obstacle
   - 
   - 
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - PlayerSensor
   - 
   - 
   - 
