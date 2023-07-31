@@ -1,29 +1,24 @@
-using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 public class Player : Creature
 {
     public static Player Instance;
     
-    [SerializeField] private float alpha;
+    [Tooltip("Min value movement input magnitude should achieve to set _isMoving value to 'True'")]
+    [SerializeField] private float alpha = 0.05f;
     [SerializeField] private GameObject bulletPrefab;
-
+    
+    private int _coins;
+    
     private Rigidbody _rigidbody;
     private InputMaster _inputMaster;
-    
+    private List<GameObject> _enemyList;
     private Vector2 _movement;
+    
     private float _nextShootTime;
-    
     private bool _isMoving;
-    
-    [SerializeField] private List<GameObject> enemyList;
-
-    [SerializeField] private int coins;
-
 
     private void Awake()
     {
@@ -32,49 +27,44 @@ public class Player : Creature
         _inputMaster = new InputMaster();
         _inputMaster.Player.Enable();
 
-        enemyList = transform.GetChild(0).GetComponent<EnemyDetection>().EnemyList;
+        _enemyList = transform.GetChild(0).GetComponent<EnemyDetection>().EnemyList;
         
-        Enemy.enemyDeath.AddListener(AddCoin);
+        Enemy.EnemyDeath.AddListener(AddCoin);
     }
 
     private void Update()
     {
         _movement = _inputMaster.Player.Move.ReadValue<Vector2>();
         _isMoving = _rigidbody.velocity.magnitude > alpha;
-        _nextShootTime -= Time.deltaTime;
-        
-        AutoShoot();
     }
 
     private void FixedUpdate()
     {
         Move();
-    }
-
-    private void AddCoin()
-    {
-        coins++;
+        AutoShoot();
     }
 
     private void Move()
     {
         var fixedMovement = new Vector3(_movement.x, 0f, _movement.y);
-        _rigidbody.velocity = fixedMovement * (MovementSpeed * Time.deltaTime);
+        _rigidbody.velocity = fixedMovement * movementSpeed;
     }
     
     private void AutoShoot()
     {
+        _nextShootTime -= Time.fixedDeltaTime;
+        
         if (_nextShootTime > 0) return;
         if (_isMoving) return;
         
         var currentTarget = GetNearestEnemy();
         if (currentTarget == null) return;
         
-        _nextShootTime = ShootRate;
+        _nextShootTime = shootRate;
         var myTransform = transform;
         var targetDirection = (currentTarget.transform.position - myTransform.position).normalized;
         var bullet = Instantiate(bulletPrefab, myTransform);
-        bullet.GetComponent<Bullet>().Init(targetDirection, Damage);
+        bullet.GetComponent<Bullet>().Init(targetDirection, damage);
     }
 
     [CanBeNull]
@@ -83,7 +73,7 @@ public class Player : Creature
         GameObject target = null;
         var distanceToNearestEnemy = float.MaxValue;
 
-        foreach (var enemy in enemyList)
+        foreach (var enemy in _enemyList)
         {
             if (enemy == null) continue;
 
@@ -95,9 +85,15 @@ public class Player : Creature
 
         return target;
     }
+    
+    private void AddCoin()
+    {
+        _coins++;
+        Debug.Log($"You got a coin! Now your balance is {_coins}!");
+    }
 
     private void OnDestroy()
     {
-        Enemy.enemyDeath.RemoveListener(AddCoin);
+        Enemy.EnemyDeath.RemoveListener(AddCoin);
     }
 }

@@ -12,20 +12,20 @@ TagManager:
   - 
   - Water
   - UI
-  - 
   - Player
-  - Shotable Through
-  - Bullet
-  - Flying Enemy
   - Enemy
+  - Flying Enemy
+  - PlayerBullet
+  - EnemyBullet
   - Field Barrier
+  - Shotable Through Obstacle
+  - Obstacle
   - 
   - 
   - 
   - 
   - 
-  - 
-  - 
+  - PlayerSensor
   - 
   - 
   - 

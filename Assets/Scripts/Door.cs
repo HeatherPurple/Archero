@@ -1,14 +1,10 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    
-    void Awake()
+    private void Awake()
     {
-        Spawner.EndGame.AddListener(OpenDoor);
+        EndGame.EndGameEvent.AddListener(OpenDoor);
     }
 
     private void OpenDoor()
@@ -18,6 +14,6 @@ public class Door : MonoBehaviour
 
     private void OnDestroy()
     {
-        Spawner.EndGame.AddListener(OpenDoor);
+        EndGame.EndGameEvent.RemoveListener(OpenDoor);
     }
 }

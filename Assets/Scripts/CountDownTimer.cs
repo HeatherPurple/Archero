@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class CountDownTimer : MonoBehaviour
 {
+    [SerializeField] private int startTime = 3;
     private void Awake()
     {
         Time.timeScale = 0f;
@@ -13,7 +11,7 @@ public class CountDownTimer : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(CountDownCoroutine(3));
+        StartCoroutine(CountDownCoroutine(startTime));
     }
 
     private IEnumerator CountDownCoroutine(int secondsLeft)

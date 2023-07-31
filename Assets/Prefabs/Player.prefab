@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 416009392}
   - component: {fileID: 416009394}
   - component: {fileID: 416009393}
-  m_Layer: 7
+  m_Layer: 19
   m_Name: EnemyDetectionZone
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 1344651985423472325}
   - component: {fileID: 1344651985423472326}
   - component: {fileID: 1344651985423472378}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -105,15 +105,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ba116e146190c541b06ec8eec8a71d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Health: 1000
-  MovementSpeed: 350
-  ShootRate: 1
-  Damage: 150
-  takingDamageRate: 0
+  health: 1000
+  movementSpeed: 7
+  shootRate: 2
+  damage: 250
   alpha: 0.05
   bulletPrefab: {fileID: 1017347379219879566, guid: 43a141362209712449c2531ecfa48217, type: 3}
-  enemyList: []
-  coins: 0
 --- !u!33 &1344651985423472324
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -1,20 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Creature : MonoBehaviour
 {
-    [SerializeField] protected int Health;
-    [SerializeField] protected int MovementSpeed;
-    [SerializeField] protected int ShootRate;
-    [SerializeField] protected int Damage;
+    [SerializeField] protected int health = 500;
+    [SerializeField] protected int movementSpeed = 5;
+    [SerializeField] protected int shootRate = 2; //???
+    [SerializeField] protected int damage = 250;
 
-    [SerializeField] private float takingDamageRate;
+    // [SerializeField] private float takingDamageRate;
 
-    public virtual void TakeDamage(int damage)
+    public virtual void TakeDamage(int takenDamage)
     {
-        Health -= damage;
-        if (Health <= 0) Die();
+        health -= takenDamage;
+        if (health <= 0) Die();
     }
     
     protected virtual void Die()

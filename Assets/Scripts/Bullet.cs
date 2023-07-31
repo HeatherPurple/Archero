@@ -2,23 +2,20 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private BulletTarget ignoreTarget;
+    [SerializeField] private BulletTarget ignoreTarget = BulletTarget.Player;
     
     private Rigidbody _rigidbody;
     private int _damage;
-    
-    
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    public void Init(Vector3 direction, int damage)
+    public void Init(Vector3 direction, int damage, float speed = 10f)
     {
         _rigidbody.velocity = direction * speed;
         _damage = damage;
-        //rotate
     }
 
     private void OnTriggerEnter(Collider other)
